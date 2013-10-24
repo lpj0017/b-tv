@@ -1,4 +1,4 @@
-# Django settings for bliblitv project.
+# Django settings for bilibilitv project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -101,10 +101,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'bliblitv.urls'
+ROOT_URLCONF = 'bilibilitv.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'bliblitv.wsgi.application'
+WSGI_APPLICATION = 'bilibilitv.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
