@@ -1,5 +1,7 @@
 import urllib
 import hashlib
+import simplejson
+
 
 def md5(s):
     return hashlib.md5(s).hexdigest()
@@ -33,4 +35,26 @@ def get_sign(params,key):
 
     return {'sign':md5(sign+key).lower(),'params':sign}
 
-print get_sign({'utk':'xx','time':'xx'},'3aa29a3f7f43a2a0236582930830bd44')
+def test_link():
+    public_key = 'cead0936ae1be654a5ba0e7b1ee2b37b'
+    app_key = 'b445a8268bac4eed'
+    app_secret = '3aa29a3f7f43a2a0236582930830bd44'
+
+    params = {}
+    params['type']='json'
+    params['appkey'] = app_key 
+
+    params['sign'] = get_sign(params,app_secret)['sign']
+    query = get_sign(params,app_secret)['params'] 
+    print 47,query
+
+    url = 'http://api.bilibili.tv/bangumi'
+
+    content = urllib.urlopen('%s?%s' % (url,query)).read()
+
+    data = simplejson.loads(content)
+
+    return data
+
+
+
