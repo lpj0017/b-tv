@@ -1,7 +1,11 @@
+# coding=UTF-8
 import urllib
 import hashlib
 import simplejson
 
+public_key = 'cead0936ae1be654a5ba0e7b1ee2b37b'
+app_key = 'b445a8268bac4eed'
+app_secret = '3aa29a3f7f43a2a0236582930830bd44'
 
 def md5(s):
     return hashlib.md5(s).hexdigest()
@@ -24,29 +28,43 @@ def reset(tmp):
     pass
 
 def get_sign(params,key):
-    data = {} 
-    ksort(params)
-    reset(params)
-#    for k,v in params.items():
-#        data[k] = rawurlencode(v)
-    data = urllib.urlencode(params)
-    print 31,data
-    sign = data 
+#    data = {} 
+#    ksort(params)
+#    reset(params)
+#    keylist = params.keys()
+#    keylist.sort()
+    
+#    param_list= [] 
+#    for key in keylist:
+#        param_list.append('%s=%s' % (key ,urllib.quote(params[key].encode('utf8'))))
+#        sorted_dict[key] = params[key]
+
+    sign = urllib.urlencode(params)
+#    sign = '&'.join(param_list) 
+#    print 43,data 
+    print 44,sign
 
     return {'sign':md5(sign+key).lower(),'params':sign}
 
-def test_link():
-    public_key = 'cead0936ae1be654a5ba0e7b1ee2b37b'
-    app_key = 'b445a8268bac4eed'
-    app_secret = '3aa29a3f7f43a2a0236582930830bd44'
+def bangumi_data(btype=None,weekday=None):
 
     params = {}
     params['type']='json'
     params['appkey'] = app_key 
+    
+    if btype:
+        params['btype'] = btype
 
-    params['sign'] = get_sign(params,app_secret)['sign']
+    if weekday:
+        params['weekday'] = weekday
+    
+#    sign_dict = get_sign(params,app_secret)
+
+
+    params['sign'] = get_sign(params,app_secret)['sign'] 
+#    query  = sign_dict['params'] + '&sign='+sign_dict['sign'] 
+#    params['sign'] = get_sign(params,app_secret)['sign']
     query = get_sign(params,app_secret)['params'] 
-    print 47,query
 
     url = 'http://api.bilibili.tv/bangumi'
 
@@ -56,5 +74,103 @@ def test_link():
 
     return data
 
+def list_data(tid='',page=1,pagesize=30,ver=2,order='default',pinyin='a'):
+
+    params = {}
+    params['type'] = 'json'
+    params['appkey'] = app_key
+
+#    params['tid'] = tid
+    params['page'] = page
+    params['pagesize'] = pagesize
+#    params['ver'] = ver
+    params['order'] = order
+#    params['pinyin'] = pinyin
+
+    params['sign'] = get_sign(params,app_secret)['sign']
+    query = get_sign(params,app_secret)['params']
+
+    url = 'http://api.bilibili.tv/list'
+
+    content = urllib.urlopen('%s?%s' % (url,query)).read()
+    data = simplejson.loads(content)
+
+    return data
 
 
+
+def index_data():
+    params = {}
+    params['type'] = 'json'
+    params['appkey'] = app_key
+
+    params['sign'] = get_sign(params,app_secret)['sign']
+    query = get_sign(params,app_secret)['params']
+
+    url = 'http://api.bilibili.tv/index'
+
+    content = urllib.urlopen('%s?%s' % (url,query)).read()
+#    content = urllib.urlopen(url).read()
+    data = simplejson.loads(content)
+    return data
+
+def recommend_data(tid=None, page=1,pagesize=30,order='default'):
+    params = {}
+    params['type'] = 'json'
+#    params['appkey'] = app_key
+
+    if tid:
+        params['tid'] = tid
+    params['page'] = page
+    params['pagesize'] = pagesize
+    params['order'] = order
+
+    params['sign'] = get_sign(params,app_secret)['sign']
+    query = get_sign(params,app_secret)['params']
+
+    url = 'http://api.bilibili.tv/recommend'
+
+    content = urllib.urlopen('%s?%s' % (url,query)).read()
+
+    data = simplejson.loads(content)
+    return data
+
+def search_data(keyword='',page=1,pagesize=20,order='default'):
+    params={}
+#    params['type'] = 'json'
+    params['appkey'] = app_key
+
+    if keyword:
+        params['keyword'] = keyword.encode('utf8')
+
+#    params['page'] = page
+#    params['pagesize'] = pagesize
+#    params['order'] = order
+
+    params['sign'] = get_sign(params,app_secret)['sign']
+    query = get_sign(params,app_secret)['params']
+
+    url = 'http://api.bilibili.tv/search'
+
+    content = urllib.urlopen('%s?%s' % (url,query)).read()
+    data = simplejson.loads(content)
+    return data
+
+def view_data(id,page):
+    params = {}
+    params['appkey'] = app_key
+
+    params['id'] = id
+    params['page'] = page
+
+    params['sign'] = get_sign(params,app_secret)['sign']
+    query = get_sign(params,app_secret)['params']
+
+    url = 'http://api.bilibili.tv/view'
+
+    content = urllib.urlopen('%s?%s' % (url,query)).read()
+    data = simplejson.loads(content)
+    
+    return data
+
+print 176,view_data(55300,1).keys()
