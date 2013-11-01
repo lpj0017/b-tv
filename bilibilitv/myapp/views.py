@@ -1,5 +1,5 @@
 # Create your views here.
-from common import bangumi_data,index_data,recommend_data,search_data
+from common import bangumi_data,index_data,recommend_data,search_data,view_data
 import simplejson
 from django.http import HttpResponse
 from lxml import etree
@@ -8,6 +8,8 @@ import urllib
 import requests
 from api import my_http_response,api_bangumi_view,api_index_view,api_recommend_view,api_search_view,api_view_view
 import re
+from urlparse import urlparse
+from utils import get_aid,get_video_source,get_comment_source
 
 def integrated_view(request,page):
     url = 'http://www.bilibili.tv/topic/integrated-%s.html' % (page)
@@ -120,8 +122,75 @@ def list_sp_view(request,page):
 
 def sp_view(request):
     url = request.GET.get('url','')
+    type = request.GET.get('type','ad')
+    order = request.GET.get('order','recommend')
+    page = request.GET.get('page','1')
+
     content = requests.get(url).content
     doc = fromstring(content)
     doc.make_links_absolute(base_url='http://www.bilibili.tv')
     
+    data_dict = {}
 
+    data_dict['image'] = doc.xpath('//div[@class="zt-i"]/img')[0].get('src')
+    data_dict['title'] = doc.xpath('//div[@class="zt-i"]/h1')[0].text_content()
+    data_dict['description'] = doc.xpath('//p[@id="info-desc"]')[0].text_content()
+    data_dict['other'] = doc.xpath('//div[@class="info"]/p[@class="ai"]')[0].text_content()
+    data_dict['tag'] = doc.xpath('//div[@class="info"]/p[@class="tag"]')[0].text_content()
+
+    script_list = doc.xpath('//script')
+
+    spid = ''
+    for script in script_list:
+        code = script.text_content()
+        if code:
+            lines = code.split(';')
+            for line in lines:
+                if line.find('var')>=0:
+                    if line.find('spid')>=0:
+                        print '@139', line
+                        spid = re.sub(r'[^\d]',r'',line)
+                        data_dict['spid'] = spid
+                        break
+    if spid:
+        video_url = 'http://www.bilibili.tv/sppage/%s-%s-%s-%s.html' %(type,order,spid,page)
+        video_content = requests.get(video_url).content.decode('utf8')
+        video_doc = fromstring(video_content)
+        video_doc.make_links_absolute(base_url='http://www.bilibili.tv')
+        
+        page_count_info = video_doc.xpath('//div[@class="pagelistbox"]/span')[0].text_content().split('/')[0]
+        page_count = re.sub(r'[^\d]',r'',page_count_info)
+
+        video_nodes = video_doc.xpath('//div[@class="po"]')
+        video_list= []
+        data_dict['video'] = {}
+        for node  in video_nodes:
+            video_dict = {}
+            video_dict['image'] = node.xpath('a/img')[0].get('src')
+            video_dict['link'] = node.xpath('a')[0].get('href')
+            video_dict['title'] = node.xpath('a/div[@class="t"]')[0].text_content()
+            video_dict['info'] = node.xpath('div[@class="z"]')[0].text_content()
+            video_list.append(video_dict)
+        data_dict['video']['list'] = video_list
+        data_dict['video']['page_count'] = page_count 
+
+    return my_http_response(data_dict)
+
+def video_view(request):
+    url = request.GET.get('url','')
+    aid = get_aid(url)
+     
+    data = view_data(aid) 
+
+    pages = int(data['pages'])
+    result = {}
+    for i in range(1,pages+1):
+        data_dict = view_data(aid,i)
+        cid = data_dict['cid']
+        data_dict['video_source'] = get_video_source(cid)
+        data_dict['comment_source'] = get_comment_source(cid)
+        result['%d' % i] = data_dict
+
+    return my_http_response(result)
+    
+    

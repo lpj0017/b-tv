@@ -12,4 +12,6 @@ urlpatterns = patterns('',
         (r'^sp/(?P<page>\d+)/$',list_sp_view),
         (r'^topic/$',topic_view),
         (r'^search/$',search_view),
+        (r'^sp_detail/$',sp_view),
+        (r'^video/$',video_view),
 )

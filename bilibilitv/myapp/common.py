@@ -156,7 +156,7 @@ def search_data(keyword='',page=1,pagesize=20,order='default'):
     data = simplejson.loads(content)
     return data
 
-def view_data(id,page):
+def view_data(id,page='1'):
     params = {}
     params['appkey'] = app_key
 

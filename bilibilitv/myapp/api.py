@@ -35,7 +35,7 @@ def api_search_view(request):
 
 def api_view_view(request):
     id = request.GET.get('id','')
-    page = request.GET.get('page','')
+    page = request.GET.get('page','1')
     
     if id and page:
         json_data = view_data(id,page)
