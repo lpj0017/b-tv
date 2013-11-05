@@ -36,8 +36,27 @@ def get_video_source(cid):
 
     parser = etree.XMLParser(strip_cdata=False)
     doc = etree.fromstring(content,parser)
-    result = doc.xpath('//result')[0].text_content()
-    print '@37',etree.tostring(doc)
+    result = doc.xpath('//result')[0].text
+    
+    if result != 'error':
+        video = {}
+        video['result'] = result
+        video['timelength'] = doc.xpath('//timelength')[0].text
+        video['framecount'] = doc.xpath('//framecount')[0].text
+        video['src'] = doc.xpath('//src')[0].text
+        
+        video['durl'] = []
+        
+        durls = doc.xpath('//durl')
+        
+        for node in durls:
+            data = {}
+            data['order'] = node.xpath('order')[0].text
+            data['length'] = node.xpath('length')[0].text
+            data['url'] = node.xpath('url')[0].text
+            video['durl'].append(data)
+
+        return video
     
     return simplejson.loads(content)
 
