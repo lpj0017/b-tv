@@ -35,7 +35,7 @@ def get_video_source(cid):
     content = res.content
 
     parser = etree.XMLParser(strip_cdata=False)
-    doc = etree.fromstring(content,parser)
+    doc = etree.XML(content, parser)
     result = doc.xpath('//result')[0].text
     
     if result != 'error':
