@@ -29,7 +29,7 @@ def get_aid(url):
 def get_video_source(cid):
     url = 'http://interface.bilibili.tv/playurl?cid=%s' % (cid)
     
-    print '@32',url
+    print '@32,video source url \n',url
 
     res = requests.get(url)
     content = res.content
@@ -57,8 +57,9 @@ def get_video_source(cid):
             video['durl'].append(data)
 
         return video
+    else:
+        return {'result':result}
     
-    return simplejson.loads(content)
 
 def get_comment_source(cid):
     url = 'http://comment.bilibili.tv/%s.xml' % (cid)
@@ -120,6 +121,18 @@ def download_file(url,sub_dir=''):
 
     return file_name
 
+def save_convert_flv_to_mp4(txt_file_path,mp4_file_path):
+    temp_file = os.path.join(os.path.dirname(txt_file_path),'temp.flv')
+    # merge flv files to one first
+    code = os.system((u'ffmpeg -f concat -i %s -c copy %s' % (txt_file_path,temp_file)).encode('utf8'))
+    # then convert flv to mp4 file 
+    # this worked,but slow
+    if code == 0:
+        code = os.system((u'ffmpeg -i "%s" "%s"' % (temp_file,mp4_file_path)).encode('utf8'))
+    
+    return code
+
+
 def convert_flv_to_mp4(old_file,new_file):
     os.system('ffmpeg -i "%s" "%s"' % (old_file,new_file))
     return new_file
@@ -142,16 +155,18 @@ def sort_list_by_order(li):
     return new_list
 
 def get_video(source_json,video_title=''):
+    list_txt = os.path.join(DOWNLOAD_ROOT,'%s/list.txt' % (video_title))
+    status_txt = os.path.join(os.path.dirname(list_txt),'finished.txt')
+    
+    if os.path.exists(status_txt):
+        return 0
+
     if source_json['result']!='error':
-
-        print '@121',source_json
         print '@122',video_title
-
         url_list= source_json['durl']
         url_list = sort_list_by_order(url_list)
         file_list = []
-        list_txt = os.path.join(DOWNLOAD_ROOT,'%s/list.txt' % (video_title))
-
+        
         if not os.path.exists(os.path.dirname(list_txt)):
             os.makedirs(os.path.dirname(list_txt))
             
@@ -170,7 +185,18 @@ def get_video(source_json,video_title=''):
         mp4= os.path.join(DOWNLOAD_ROOT,'%s/%s-%s.mp4'%(video_title,aid,cid))
         command = u'ffmpeg -f concat -i %s -c copy %s' % (list_txt,mp4)
         command = command.encode('utf8')
+        code = os.system(command)
+        if code != 0:
+            if os.path.exists(mp4):
+                os.remove(mp4)
+            code = save_convert_flv_to_mp4(list_txt,mp4)
+            if code != 0:
+                return code
+        command = (u'echo "ok" > %s' % (status_txt)).encode('utf8') 
+        print '@194,run command:', command
         os.system(command)
+            
+        return code
 
 if __name__ == '__main__':
 #    download the video and megre it to mp4 file then upload to oss
@@ -192,6 +218,8 @@ if __name__ == '__main__':
         data_dict = view_data(aid,i)
         cid = data_dict['cid']
         source_json = get_video_source(cid)
-        get_video(source_json,data_dict['partname'])
+        code = get_video(source_json,data_dict['partname'])
+        
+
 
 

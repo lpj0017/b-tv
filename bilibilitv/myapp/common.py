@@ -42,7 +42,7 @@ def get_sign(params,key):
     sign = urllib.urlencode(params)
 #    sign = '&'.join(param_list) 
 #    print 43,data 
-    print 44,sign
+#    print 44,sign
 
     return {'sign':md5(sign+key).lower(),'params':sign}
 
@@ -173,4 +173,4 @@ def view_data(id,page='1'):
     
     return data
 
-print 176,view_data(55300,1).keys()
+#print 176,view_data(55300,1).keys()
