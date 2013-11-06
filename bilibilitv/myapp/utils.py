@@ -1,4 +1,7 @@
 # coding=UTF-8
+from django.core.files import File
+from models import Video,Part
+from django.http import HttpResponse
 from urlparse import urlparse
 from lxml import etree
 from lxml.html import fromstring
@@ -9,9 +12,13 @@ import sys
 import urllib2
 import os
 import time
+#from django.core.management import setup_environ
+#from bilibilitv import settings
+from bilibilitv.settings import MEDIA_ROOT 
+from django.core.files.base import ContentFile
 
-STATIC_ROOT = os.path.dirname(__file__)
-DOWNLOAD_ROOT = os.path.join(STATIC_ROOT,'downloads')
+#STATIC_ROOT = os.path.dirname(__file__)
+#DOWNLOAD_ROOT = os.path.join(MEDIA_ROOT,'downloads')
 
 def get_aid(url):
     o = urlparse(url)
@@ -89,15 +96,23 @@ def download_file(url,sub_dir=''):
         file_name = file_name.split('?')[0]
 
     if sub_dir:
-        file_name = os.path.join(DOWNLOAD_ROOT,'%s/%s'% (sub_dir,file_name))
+        file_name = os.path.join(MEDIA_ROOT,'%s/%s'% (sub_dir,file_name))
     else:
-        file_name = os.path.join(DOWNLOAD_ROOT,file_name)
+        file_name = os.path.join(MEDIA_ROOT,file_name)
+    
+    size = 0
+    if os.path.exists(file_name):
+        size = os.path.getsize(file_name)
+
 
     u = urllib2.urlopen(url)
     f = open(file_name, 'wb')
     meta = u.info()
     file_size = int(meta.getheaders("Content-Length")[0])
     print "Downloading: %s Bytes: %s" % (file_name, file_size)
+#    don't repeatly download the same file
+    if file_size == size:
+        return file_name
 
     file_size_dl = 0
     block_sz = 8192
@@ -155,11 +170,13 @@ def sort_list_by_order(li):
     return new_list
 
 def get_video(source_json,video_title=''):
-    list_txt = os.path.join(DOWNLOAD_ROOT,'%s/list.txt' % (video_title))
+    list_txt = os.path.join(MEDIA_ROOT,'%s/list.txt' % (video_title))
     status_txt = os.path.join(os.path.dirname(list_txt),'finished.txt')
+    mp4= os.path.join(MEDIA_ROOT,'%s/%s.mp4'%(video_title,video_title))
     
     if os.path.exists(status_txt):
-        return 0
+        return 0, mp4
+
 
     if source_json['result']!='error':
         print '@122',video_title
@@ -182,7 +199,6 @@ def get_video(source_json,video_title=''):
         f.close()
         print '@146,download ok.'
 
-        mp4= os.path.join(DOWNLOAD_ROOT,'%s/%s-%s.mp4'%(video_title,aid,cid))
         command = u'ffmpeg -f concat -i %s -c copy %s' % (list_txt,mp4)
         command = command.encode('utf8')
         code = os.system(command)
@@ -191,16 +207,34 @@ def get_video(source_json,video_title=''):
                 os.remove(mp4)
             code = save_convert_flv_to_mp4(list_txt,mp4)
             if code != 0:
-                return code
+                return code,None
         command = (u'echo "ok" > %s' % (status_txt)).encode('utf8') 
         print '@194,run command:', command
         os.system(command)
             
-        return code
+        return code,mp4
 
-if __name__ == '__main__':
-#    download the video and megre it to mp4 file then upload to oss
-    bilibili_url = sys.argv[1]
+def save_part(data_dict, video,file_path):
+    part_list = Part.objects.filter(cid=data_dict['cid'])
+
+    f = open(file_path)
+    if part_list.count() == 0:
+        part = Part(cid=data_dict['cid'])
+        part.name = data_dict['partname']
+        part.desc = data_dict['description']
+        part.video = video
+        part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
+        part.save()
+        print 'save new object'
+    else:
+        part = part_list[0]
+        part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
+        part.save()
+        print 'save with find object'
+
+def generate_view(request):
+
+    bilibili_url = request.GET.get('url','') #sys.argv[1]
     aid = get_aid(bilibili_url)
     
     if not aid:
@@ -211,15 +245,25 @@ if __name__ == '__main__':
     cid,pages = data_dict['cid'],int(data_dict['pages'])
 
 #    source_json = get_video_source(cid)
+    video_list = Video.objects.filter(aid = aid)
     
+    if len(video_list) == 0:
+        v = Video(aid=aid)
+        v.title = data_dict['title']
+        v.pic_url = data_dict['pic']
+        v.save()
+    else:
+        v = video_list[0]
+
     for i in range(1,pages+1):
         print '@133,read for get video at page %d' % i
         time.sleep(1)
         data_dict = view_data(aid,i)
         cid = data_dict['cid']
         source_json = get_video_source(cid)
-        code = get_video(source_json,data_dict['partname'])
+        code,path = get_video(source_json,'%s-%s' % (aid,cid))
         
+        save_part(data_dict,v,path)
 
-
+    return HttpResponse('finished')
 

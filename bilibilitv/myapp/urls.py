@@ -13,5 +13,8 @@ urlpatterns = patterns('',
         (r'^topic/$',topic_view),
         (r'^search/$',search_view),
         (r'^sp_detail/$',sp_view),
-        (r'^video/$',video_view),
+        (r'^comment/$',comment_view),
+
+        (r'^generate/$',generate_view),
+
 )

@@ -1,4 +1,6 @@
+# coding=UTF-8
 # Create your views here.
+
 from common import bangumi_data,index_data,recommend_data,search_data,view_data
 import simplejson
 from django.http import HttpResponse
@@ -9,7 +11,22 @@ import requests
 from api import my_http_response,api_bangumi_view,api_index_view,api_recommend_view,api_search_view,api_view_view
 import re
 from urlparse import urlparse
-from utils import get_aid,get_video_source,get_comment_source
+from utils import get_aid,get_video_source,get_comment_source,generate_view
+from models import Topic,Part,Video
+
+def save_topic(data_dict):
+    topic_list = Topic.objects.filter(title=data_dict['title'])
+    
+    if topic_list.count() == 0:
+        t = Topic(title=data_dict['title'])
+        t.image_url = data_dict['image']
+        t.link = data_dict['link']
+        t.desc = data_dict['desc']
+        t.date = data_dict['date']
+        t.user = data_dict['user']
+        t.clicked=data_dict['clicked']
+        t.comments = data_dict['comments']
+        t.save()
 
 def integrated_view(request,page):
     url = 'http://www.bilibili.tv/topic/integrated-%s.html' % (page)
@@ -27,9 +44,15 @@ def integrated_view(request,page):
         data_dict['image'] = node.xpath('a/img')[0].get('src')
         data_dict['link'] = node.xpath('a[@target="_blank"]')[0].get('href')
         data_dict['title'] = node.xpath('h2')[0].text_content()
-        data_dict['description'] = node.xpath('div[@class="info"]')[0].text_content()
-        data_dict['other'] = node.xpath('div[@class="artInfo"]')[0].text_content()
+        data_dict['desc'] = node.xpath('div[@class="info"]')[0].text_content()
+#        data_dict['other'] = node.xpath('div[@class="artInfo"]')[0].text_content()
+        art_info = node.xpath('div[@class="artInfo"]')[0]
+        data_dict['date'] = art_info.xpath('span[@id="p_date"]')[0].text_content()
+        data_dict['user'] = art_info.xpath('span[@id="p_user"]')[0].text_content()
+        data_dict['clicked'] = art_info.xpath('span[@id="p_click"]')[0].text_content()
+        data_dict['comments'] = art_info.xpath('span[@id="p_pl"]')[0].text_content()
         art_list.append(data_dict)
+        save_topic(data_dict)
     
 
     return my_http_response(art_list)
@@ -49,7 +72,7 @@ def topic_view(request):
         data_dict['shape'] = 'rect'
         data_dict['coords'] = area.get('coords')
         data_dict['href'] = area.get('href')
-        art_list.append(data_dict)
+        area_list.append(data_dict)
 
     result = {}
     result['image'] = image
@@ -81,12 +104,20 @@ def search_view(request):
         data_dict['link'] = node.xpath('a')[0].get('href')
         data_dict['type'] = node.xpath('*/div[@class="t"]/span')[0].text_content()
         data_dict['title'] = node.xpath('*/div[@class="t"]')[0].text_content()
-        data_dict['other'] = node.xpath('div[@class="info"]')[0].text_content()
+        users = node.xpath('div[@class="info"]/a')
+        data_dict['users'] = [] 
+        data_dict['other'] = node.xpath('div[@class="info"]')[0].text_content().replace(u'UP主:','')
+        for u in users:
+            v = u.text_content()
+            data_dict['users'].append(v)
+            data_dict['other'] = data_dict['other'].replace(v,'')
+
         data_dict['description'] = node.xpath('div[@class="intro"]')[0].text_content()
         data_dict['tag'] = []
-        tag_list = node.xpath('ul[@class="tag"]/li')
+        tag_list = node.xpath('div[@class="s_tag"]/ul/li') 
         for tag in tag_list:
-            data_dict['tag'].append(tag.text_content())
+            v = tag.text_content()
+            data_dict['tag'].append(v)
         data_list.append(data_dict)
 
     result={}
@@ -176,21 +207,36 @@ def sp_view(request):
 
     return my_http_response(data_dict)
 
-def video_view(request):
+def comment_view(request):
     url = request.GET.get('url','')
+    page = request.GET.get('page','1')
     aid = get_aid(url)
      
-    data = view_data(aid) 
+#    data = view_data(aid) 
 
-    pages = int(data['pages'])
+#    pages = int(data['pages'])
     result = {}
-    for i in range(1,pages+1):
-        data_dict = view_data(aid,i)
-        cid = data_dict['cid']
-        data_dict['video_source'] = get_video_source(cid)
-        data_dict['comment_source'] = get_comment_source(cid)
-        result['%d' % i] = data_dict
+#    for i in range(1,pages+1):
+    data_dict = view_data(aid,page)
+    cid = data_dict['cid']
+#    data_dict['video_source'] = get_video_source(cid)
+    data_dict['comment_source'] = get_comment_source(cid)
+    result['%s' % page] = data_dict
 
     return my_http_response(result)
     
+def video_view(request):
+    url = request.GET.get('url','')
+    page = request.GET.get('page','1')
+
+    aid = get_aid(url)
     
+    data = view_data(aid,page)
+
+    cid = data['cid']
+
+    part_list = Part.objects.filter(cid=cid)
+    
+    if part_list.count() > 0 :
+        return {'url':part.mp4}
+

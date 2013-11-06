@@ -4,18 +4,31 @@ class Video(models.Model):
     aid = models.IntegerField()
     title = models.CharField(max_length=150)
     pic_url = models.CharField(max_length=2048)
-    type = models.CharField(max_length=30, blank=True)
+    category = models.CharField(max_length=30, blank=True)
 
     def __unicode__(self):
         return self.title
 
-class VideoPart(models.Model):
+class Part(models.Model):
     cid = models.IntegerField()
-    part_name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150)
     desc = models.TextField(blank=True)
     mp4 = models.FileField(upload_to='video',blank=True,null=True) 
     video= models.ForeignKey(Video)
 
     def __unicode__(self):
-        return self.part_name
+        return str(self.cid)
+
+class Topic(models.Model):
+    image_url = models.CharField(max_length=2048)
+    link = models.CharField(max_length=2048)
+    title = models.CharField(max_length=150)
+    desc = models.TextField()
+    date = models.CharField(max_length=50)
+    user = models.CharField(max_length=50)
+    clicked = models.CharField(max_length=50)
+    comments = models.CharField(max_length=50)
+
+    def __unicode__(self):
+        return self.title
 # Create your models here.

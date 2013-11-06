@@ -4,4 +4,5 @@ from django.contrib import admin
 
 #admin.site.register(Project)
 admin.site.register(Video)
-admin.site.register(VideoPart)
+admin.site.register(Part)
+admin.site.register(Topic)
