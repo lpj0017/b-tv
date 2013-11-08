@@ -15,7 +15,7 @@ urlpatterns = patterns('',
         (r'^sp/(?P<page>\d+)/$',cache_page(TIME_OUT)(list_sp_view)),
         (r'^topic/$',cache_page(TIME_OUT)(topic_view)),
         (r'^search/$',cache_page(TIME_OUT)(search_view)),
-        (r'^sp_detail/$',cache_page(TIME_OUT)(sp_view)),
+        (r'^sp_detail/$',(sp_view)),
         (r'^comment/$',cache_page(TIME_OUT)(comment_view)),
 
         (r'^generate/$',generate_view),

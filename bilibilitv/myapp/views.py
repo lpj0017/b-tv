@@ -162,8 +162,8 @@ def list_sp_view(request,page):
 
 def sp_view(request):
     url = request.GET.get('url','')
-    type = request.GET.get('type','ad')
-    order = request.GET.get('order','recommend')
+#    type = request.GET.get('type','ad')
+#    order = request.GET.get('order','recommend')
     page = request.GET.get('page','1')
 
     content = requests.get(url).content
@@ -176,11 +176,19 @@ def sp_view(request):
     data_dict['title'] = doc.xpath('//div[@class="zt-i"]/h1')[0].text_content()
     data_dict['description'] = doc.xpath('//p[@id="info-desc"]')[0].text_content()
     data_dict['other'] = doc.xpath('//div[@class="info"]/p[@class="ai"]')[0].text_content()
-    data_dict['tag'] = doc.xpath('//div[@class="info"]/p[@class="tag"]')[0].text_content()
+    
+    
+    tags = doc.xpath('//div[@class="info"]/p[@class="tag"]')
+    data_dict['tag'] = ''
+    if len(tags) != 0:
+       data_dict['tag'] = tag_nodes[0].text_content() 
+#    data_dict['tag'] = doc.xpath('//div[@class="info"]/p[@class="tag"]')[0].text_content()
 
     script_list = doc.xpath('//script')
 
     spid = ''
+    type = ''
+    order = ''
     for script in script_list:
         code = script.text_content()
         if code:
@@ -191,7 +199,11 @@ def sp_view(request):
                         print '@139', line
                         spid = re.sub(r'[^\d]',r'',line)
                         data_dict['spid'] = spid
-                        break
+
+                if line.find('#sp_') >=0 and line.find('.click()')>=0:
+                    pass
+                    type = re.sub(r'.*\"\(.*\)\".*','',line).replace('#','')
+
     if spid:
         video_url = 'http://www.bilibili.tv/sppage/%s-%s-%s-%s.html' %(type,order,spid,page)
         video_content = requests.get(video_url).content.decode('utf8')

@@ -213,7 +213,8 @@ def get_video(source_json,video_title=''):
         os.system(command)
             
         return code,mp4
-
+    else:
+        return None,None
 def save_part(data_dict, video,file_path):
     part_list = Part.objects.filter(cid=data_dict['cid'])
 
@@ -264,9 +265,12 @@ def generate_view(request):
         data_dict = view_data(aid,i)
         cid = data_dict['cid']
         source_json = get_video_source(cid)
+#        print '@267',source_json
+
         code,path = get_video(source_json,'%s-%s' % (aid,cid))
-        
-        save_part(data_dict,v,path)
+
+        if code and path: 
+            save_part(data_dict,v,path)
 
     return HttpResponse('finished')
 
