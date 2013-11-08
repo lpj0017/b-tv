@@ -156,12 +156,19 @@ LOGGING = {
         },
     }
 }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
+        'TIMEOUT': 60*60*8,
+    }
+}
 STATICFILES_STORAGE  = 'storages.backends.oss.OSSStorage'
 DEFAULT_FILE_STORAGE = 'storages.backends.oss.OSSStorage'
 
 OSS_STORAGE_BUCKET_NAME = 'bilibili-tv'
-OSS_ACCESS_KEY_ID = 'skgKAqCZZ6ig6bpR'
-OSS_ACCESS_KEY_SECRET = 'RwkMAYQzg6ZUpq8WoYJNA14hmt1Ped'
+OSS_ACCESS_KEY_ID = 'AcHFO7MrtNvDQIJa'
+OSS_ACCESS_KEY_SECRET = '0gegtS77xqV9zYnRKTgJw5MDZlf07b'
 
 STATIC_URL = 'http://%s.oss.aliyuncs.com/' % OSS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'

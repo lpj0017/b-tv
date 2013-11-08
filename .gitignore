@@ -16,3 +16,7 @@ venv/*
 *.swp
 
 *.pyc
+
+
+/bilibilitv/bilibilitv/d-media/*
+bilibilitv/myapp/error.html

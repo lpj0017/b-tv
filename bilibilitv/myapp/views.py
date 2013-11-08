@@ -1,6 +1,6 @@
 # coding=UTF-8
 # Create your views here.
-
+from django.views.decorators.cache import cache_page
 from common import bangumi_data,index_data,recommend_data,search_data,view_data
 import simplejson
 from django.http import HttpResponse
@@ -63,8 +63,17 @@ def topic_view(request):
     doc = fromstring(content)
     doc.make_links_absolute(base_url='http://www.bilibili.tv')
 
-    image = doc.xpath('//div[@class="z-txt"]/img')[0].get('src')
-    maps = doc.xpath('//div[@class="z-txt"]/map/area')
+    images = doc.xpath('//div[@class="z-txt"]/img')
+    if len(images) == 0:
+        images = doc.xpath('//img[@usemap]')
+    
+    if len(images)!=0: 
+        image = images[0].get('src')
+    else:
+        image = ''
+
+    maps = doc.xpath('//map/area')
+
 
     area_list = []
     for area in maps:

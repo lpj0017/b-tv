@@ -49,7 +49,7 @@ def get_video_source(cid):
         video = {}
         video['result'] = result
         video['timelength'] = doc.xpath('//timelength')[0].text
-        video['framecount'] = doc.xpath('//framecount')[0].text
+#        video['framecount'] = doc.xpath('//framecount')[0].text
         video['src'] = doc.xpath('//src')[0].text
         
         video['durl'] = []
@@ -221,6 +221,8 @@ def save_part(data_dict, video,file_path):
     if part_list.count() == 0:
         part = Part(cid=data_dict['cid'])
         part.name = data_dict['partname']
+        if part.name == '':
+            part.name = data_dict['title']
         part.desc = data_dict['description']
         part.video = video
         part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
@@ -228,9 +230,10 @@ def save_part(data_dict, video,file_path):
         print 'save new object'
     else:
         part = part_list[0]
-        part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
-        part.save()
-        print 'save with find object'
+        if not part.mp4:
+            part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
+            part.save()
+            print 'save with find object'
 
 def generate_view(request):
 
