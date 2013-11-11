@@ -215,7 +215,6 @@ def sp_view(request):
             for line in lines:
                 if line.find('var')>=0:
                     if line.find('spid')>=0:
-                        print '@139', line
                         spid = re.sub(r'[^\d]',r'',line)
                         data_dict['spid'] = spid
 

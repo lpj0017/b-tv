@@ -179,7 +179,6 @@ def get_video(source_json,video_title=''):
 
 
     if source_json['result']!='error':
-        print '@122',video_title
         url_list= source_json['durl']
         url_list = sort_list_by_order(url_list)
         file_list = []
@@ -197,7 +196,6 @@ def get_video(source_json,video_title=''):
             f.write("file '%s'\n" % (file_name))
 
         f.close()
-        print '@146,download ok.'
 
         command = u'ffmpeg -f concat -i %s -c copy %s' % (list_txt,mp4)
         command = command.encode('utf8')
@@ -209,7 +207,6 @@ def get_video(source_json,video_title=''):
             if code != 0:
                 return code,None
         command = (u'echo "ok" > %s' % (status_txt)).encode('utf8') 
-        print '@194,run command:', command
         os.system(command)
             
         return code,mp4
@@ -228,13 +225,11 @@ def save_part(data_dict, video,file_path):
         part.video = video
         part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
         part.save()
-        print 'save new object'
     else:
         part = part_list[0]
         if not part.mp4:
             part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
             part.save()
-            print 'save with find object'
 
 def generate_view(request):
 
@@ -242,7 +237,6 @@ def generate_view(request):
     aid = get_aid(bilibili_url)
     
     if not aid:
-        print "Sorry,can't get aid"
         sys.exit()
     data_dict = view_data(aid)
 
@@ -260,7 +254,6 @@ def generate_view(request):
         v = video_list[0]
 
     for i in range(1,pages+1):
-        print '@133,read for get video at page %d' % i
         time.sleep(1)
         data_dict = view_data(aid,i)
         cid = data_dict['cid']

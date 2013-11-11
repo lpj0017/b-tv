@@ -20,3 +20,5 @@ venv/*
 
 /bilibilitv/bilibilitv/d-media/*
 bilibilitv/myapp/error.html
+
+*.swn
