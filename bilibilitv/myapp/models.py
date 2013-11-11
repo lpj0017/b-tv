@@ -31,4 +31,10 @@ class Topic(models.Model):
 
     def __unicode__(self):
         return self.title
+
+class VideoURL(models.Model):
+    url=models.CharField(max_length=2048)
+
+    def __unicode__(self):
+        return self.url
 # Create your models here.

@@ -13,7 +13,7 @@ import re
 from urlparse import urlparse
 from utils import get_aid,get_video_source,get_comment_source,generate_view
 from models import Topic,Part,Video
-
+from get_all_topic_worker import make_topic
 def save_topic(data_dict):
     topic_list = Topic.objects.filter(title=data_dict['title'])
     
@@ -171,11 +171,30 @@ def sp_view(request):
     doc.make_links_absolute(base_url='http://www.bilibili.tv')
     
     data_dict = {}
+    data_dict['image'] = ''
+    data_dict['title'] = ''
+    data_dict['description'] = ''
+    data_dict['other'] = ''
 
-    data_dict['image'] = doc.xpath('//div[@class="zt-i"]/img')[0].get('src')
-    data_dict['title'] = doc.xpath('//div[@class="zt-i"]/h1')[0].text_content()
-    data_dict['description'] = doc.xpath('//p[@id="info-desc"]')[0].text_content()
-    data_dict['other'] = doc.xpath('//div[@class="info"]/p[@class="ai"]')[0].text_content()
+    image_nodes = doc.xpath('//div[@class="zt-i"]/img')
+    if len(image_nodes)>0:
+        image_node = image_nodes[0]
+        data_dict['image'] = image_node.get('src') 
+
+    title_nodes = doc.xpath('//div[@class="zt-i"]/h1')
+    if len(title_nodes)>0:
+        title_node = title_nodes[0]
+        data_dict['title'] = title_node.text_content() 
+
+    desc_nodes = doc.xpath('//p[@id="info-desc"]')
+    if len(desc_nodes)>0:
+        desc_node = desc_nodes[0]
+        data_dict['description'] = desc_node.text_content() 
+
+    other_nodes = doc.xpath('//div[@class="info"]/p[@class="ai"]')
+    if len(other_nodes)>0:
+        other_node = other_nodes[0]
+        data_dict['other'] = other_node.text_content() 
     
     
     tags = doc.xpath('//div[@class="info"]/p[@class="tag"]')
@@ -279,3 +298,10 @@ def video_view(request):
     if part_list.count() > 0 :
         return {'url':part.mp4}
 
+def make_video_url_view(request):
+    str_number = request.GET.get('number','1')
+    number =  int(str_number)
+
+    make_topic(number)
+
+    return HttpResponse('work finished!')

@@ -6,3 +6,5 @@ from django.contrib import admin
 admin.site.register(Video)
 admin.site.register(Part)
 admin.site.register(Topic)
+admin.site.register(VideoURL)
+
