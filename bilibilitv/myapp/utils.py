@@ -139,17 +139,17 @@ def download_file(url,sub_dir=''):
 def save_convert_flv_to_mp4(txt_file_path,mp4_file_path):
     temp_file = os.path.join(os.path.dirname(txt_file_path),'temp.flv')
     # merge flv files to one first
-    code = os.system((u'ffmpeg -f concat -i %s -c copy %s' % (txt_file_path,temp_file)).encode('utf8'))
+    code = os.system((u'ffmpeg -f concat -i %s -c copy %s 2> /var/tmp/ffmpeg.log' % (txt_file_path,temp_file)).encode('utf8'))
     # then convert flv to mp4 file 
     # this worked,but slow
     if code == 0:
-        code = os.system((u'ffmpeg -i "%s" "%s"' % (temp_file,mp4_file_path)).encode('utf8'))
+        code = os.system((u'ffmpeg -i "%s" "%s" 2> /var/tmp/ffmpeg.log' % (temp_file,mp4_file_path)).encode('utf8'))
     
     return code
 
 
 def convert_flv_to_mp4(old_file,new_file):
-    os.system('ffmpeg -i "%s" "%s"' % (old_file,new_file))
+    os.system('ffmpeg -i "%s" "%s" 2> /var/tmp/ffmpeg.log' % (old_file,new_file))
     return new_file
 
 def merge_files(file_list,new_file):

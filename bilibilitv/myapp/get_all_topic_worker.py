@@ -30,7 +30,7 @@ def generate_topic_video(href):
 
 
 url_list = []
-for i in range(1,219+1):
+for i in range(1,19+1):
     data = requests.get('http://localhost:8000/myapp/integrated/%d/' % i )
     content = data.content
     data_list = simplejson.loads(content)
@@ -63,8 +63,6 @@ for url in url_list:
                 video_list.append(href)
             elif p.startswith('/sp'):
                 print '****@64 sp url: %s' % href
-                import pdb
-                pdb.set_trace()
 
                 param_dict ={}
                 param_dict['url'] = href
@@ -78,7 +76,7 @@ for url in url_list:
                 for i in range (1,int(page_count)+1):
                     param_dict['page'] = i
                     query = urllib.urlencode(param_dict)
-                    sp_url = 'http://localhost:8000/sp/?%s' % (query)
+                    sp_url = 'http://localhost:8000/myapp/sp_detail/?%s' % (query)
                     time.sleep(3)
                     content = requests.get(sp_url).content
                     sp_dict = simplejson.loads(content)

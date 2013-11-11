@@ -181,13 +181,13 @@ def sp_view(request):
     tags = doc.xpath('//div[@class="info"]/p[@class="tag"]')
     data_dict['tag'] = ''
     if len(tags) != 0:
-       data_dict['tag'] = tag_nodes[0].text_content() 
+       data_dict['tag'] = tags[0].text_content() 
 #    data_dict['tag'] = doc.xpath('//div[@class="info"]/p[@class="tag"]')[0].text_content()
 
     script_list = doc.xpath('//script')
 
     spid = ''
-    type = ''
+    stype = ''
     order = ''
     for script in script_list:
         code = script.text_content()
@@ -201,31 +201,49 @@ def sp_view(request):
                         data_dict['spid'] = spid
 
                 if line.find('#sp_') >=0 and line.find('.click()')>=0:
-                    pass
-                    type = re.sub(r'.*\"\(.*\)\".*','',line).replace('#','')
+                    m = re.findall(r'"(.+?)"',line)
+                    stype = m[0].split('_')[-1]
+
+            order = doc.xpath('//div[@id="sp_order"]')
+            if len(order)>0:
+                order = order[0].xpath('a[contains(@class,"on")]')[0].get('id')
+                order = order.split('_')[-1]
+
 
     if spid:
-        video_url = 'http://www.bilibili.tv/sppage/%s-%s-%s-%s.html' %(type,order,spid,page)
+        video_url = 'http://www.bilibili.tv/sppage/%s-%s-%s-%s.html' %(stype,order,spid,page)
+        print '@215',video_url
         video_content = requests.get(video_url).content.decode('utf8')
         video_doc = fromstring(video_content)
         video_doc.make_links_absolute(base_url='http://www.bilibili.tv')
         
-        page_count_info = video_doc.xpath('//div[@class="pagelistbox"]/span')[0].text_content().split('/')[0]
-        page_count = re.sub(r'[^\d]',r'',page_count_info)
+        page_count = 1 
+        page_count_info = video_doc.xpath('//div[@class="pagelistbox"]/span')
+        if len(page_count_info)>0:
+            page_count_info = page_count_info[0].text_content().split('/')[0]
+            page_count = re.sub(r'[^\d]',r'',page_count_info)
 
-        video_nodes = video_doc.xpath('//div[@class="po"]')
+#        video_nodes = video_doc.xpath('//div[@class="po"]')
+        video_nodes = video_doc.xpath('//li')
         video_list= []
         data_dict['video'] = {}
         for node  in video_nodes:
             video_dict = {}
-            video_dict['image'] = node.xpath('a/img')[0].get('src')
-            video_dict['link'] = node.xpath('a')[0].get('href')
-            video_dict['title'] = node.xpath('a/div[@class="t"]')[0].text_content()
-            video_dict['info'] = node.xpath('div[@class="z"]')[0].text_content()
+            video_dict['image'] = node.xpath('*//img')[0].get('src')
+            video_dict['link'] = node.xpath('*//a')[0].get('href')
+            video_dict['title'] = node.xpath('*//div[@class="t"]')[0].text_content()
+            video_dict['subtitle'] = node.xpath('div')[0].get('subtitle')
+            video_dict['txt'] = node.xpath('div')[0].get('txt')
+            
+
             video_list.append(video_dict)
+
         data_dict['video']['list'] = video_list
         data_dict['video']['page_count'] = page_count 
 
+        for k,v in data_dict.items():
+            if isinstance(v,basestring):
+                data_dict[k] = v.strip()
     return my_http_response(data_dict)
 
 def comment_view(request):
