@@ -299,8 +299,11 @@ def video_view(request):
 
 def make_video_url_view(request):
     str_number = request.GET.get('number','1')
+    end_number = request.GET.get('end_num','200')
     number =  int(str_number)
-
-    make_topic(number)
+    end_number =  int(end_number)
+    
+    for i in range(number,end_number+1):
+        make_topic(number)
 
     return HttpResponse('work finished!')

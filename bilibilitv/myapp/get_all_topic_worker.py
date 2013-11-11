@@ -132,5 +132,3 @@ def make_video_link(url):
 #        line = '%s\n' % line.encode('utf8')
 #        fout.write(line)
 #fout.close()
-for i in range(10,20):
-    data = requests.get('http://localhost:8000/myapp/make_video_link/?number=%d'%(i))
