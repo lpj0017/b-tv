@@ -304,6 +304,6 @@ def make_video_url_view(request):
     end_number =  int(end_number)
     
     for i in range(number,end_number+1):
-        make_topic(number)
+        make_topic(i)
 
     return HttpResponse('work finished!')
