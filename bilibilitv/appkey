@@ -5,3 +5,11 @@ App-Key: b445a8268bac4eed
 App-Secret: 3aa29a3f7f43a2a0236582930830bd44
 
 第3方登陆请求地址: https://secure.bilibili.tv/login?api=http%3A%2F%2Fbilibili-tv.oss-cn-hangzhou.aliyuncs.com%2F&appkey=b445a8268bac4eed&sign=ab10a772b054fddd2f5350d0adcb804e
+
+Public-Key: cead0936ae1be654a5ba0e7b1ee2b37b
+
+App-Key: b445a8268bac4eed
+
+App-Secret: 3aa29a3f7f43a2a0236582930830bd44
+
+第3方登陆请求地址: https://secure.bilibili.tv/login?api=http%3A%2F%2Fbilibili-tv.oss-cn-hangzhou.aliyuncs.com%2F&appkey=b445a8268bac4eed&sign=ab10a772b054fddd2f5350d0adcb804e

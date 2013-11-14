@@ -14,6 +14,7 @@ from urlparse import urlparse
 from utils import get_aid,get_video_source,get_comment_source,generate_view
 from models import Topic,Part,Video,VideoURL
 from get_all_topic_worker import make_topic
+from django.shortcuts import get_object_or_404
 
 def save_topic(data_dict):
     topic_list = Topic.objects.filter(title=data_dict['title'])
@@ -292,11 +293,15 @@ def video_view(request):
 
     cid = data['cid']
 
-    part_list = Part.objects.filter(cid=cid)
-    
-    if part_list.count() > 0 :
-        part = part_list[0]
+#    part_list = Part.objects.filter(cid=cid)
+    v  = get_object_or_404(Video,aid=aid)
+
+    parts = v.part_set.filter(cid=cid)
+    if parts.count()>0:
+        part = parts[0]
         return my_http_response({'url':part.mp4.url})
+
+    return my_http_response({'error':'404'})
 
 def make_video_url_view(request):
     str_number = request.GET.get('number','1')
