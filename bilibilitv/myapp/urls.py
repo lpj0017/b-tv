@@ -18,6 +18,7 @@ urlpatterns = patterns('',
         (r'^sp_detail/$',(sp_view)),
 #        (r'^comment/$',cache_page(TIME_OUT)(comment_view)),
         (r'^comment/$',comment_view),
+        (r'^video/$',video_view),
 
         (r'^generate/$',generate_view),
         (r'^make_video_url/$',make_video_url_view),

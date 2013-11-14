@@ -14,6 +14,7 @@ from urlparse import urlparse
 from utils import get_aid,get_video_source,get_comment_source,generate_view
 from models import Topic,Part,Video,VideoURL
 from get_all_topic_worker import make_topic
+
 def save_topic(data_dict):
     topic_list = Topic.objects.filter(title=data_dict['title'])
     
@@ -53,7 +54,6 @@ def integrated_view(request,page):
         data_dict['comments'] = art_info.xpath('span[@id="p_pl"]')[0].text_content()
         art_list.append(data_dict)
         save_topic(data_dict)
-    
 
     return my_http_response(art_list)
 
@@ -295,7 +295,8 @@ def video_view(request):
     part_list = Part.objects.filter(cid=cid)
     
     if part_list.count() > 0 :
-        return {'url':part.mp4}
+        part = part_list[0]
+        return my_http_response({'url':part.mp4.url})
 
 def make_video_url_view(request):
     str_number = request.GET.get('number','1')
