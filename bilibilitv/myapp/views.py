@@ -312,10 +312,12 @@ def download_source_and_upload_view(request):
     number = request.GET.get('number','')
 
     if number:
-        url_query = VideoURL.objects.filter(is_saved__iexact=False)[:number]
+        url_query = VideoURL.objects.filter(is_saved__iexact=False).order_by('id')
+        url_query = url_query[:number]
     else:
-        url_query = VideoURL.objects.filter(is_saved__iexact=False)
-
+        url_query = VideoURL.objects.filter(is_saved__iexact=False).order_by('id')
+    
+    print '@391 url count=',url_query.count()
     for (count,url_object) in enumerate(url_query):
         print '@315 number',count,"url=",url_object.url
         url = url_object.url
@@ -325,5 +327,8 @@ def download_source_and_upload_view(request):
         content = requests.get('http://localhost:8000/myapp/generate/?%s' % param).content
         if content!="finished":
             return HttpResponse(content)
+        else:
+            url_object.is_saved = True
+            url_object.save()
 
     return HttpResponse('working finished')

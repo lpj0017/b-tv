@@ -197,21 +197,24 @@ def get_video(source_json,video_title=''):
 
         f.close()
 
-        command = u'ffmpeg -f concat -i %s -c copy %s' % (list_txt,mp4)
+        command = u'ffmpeg -f concat -i "%s" -c copy "%s"' % (list_txt,mp4)
         command = command.encode('utf8')
         code = os.system(command)
+        print code,command,'@203'
         if code != 0:
             if os.path.exists(mp4):
                 os.remove(mp4)
+            print code,'@207'
             code = save_convert_flv_to_mp4(list_txt,mp4)
             if code != 0:
                 return code,None
-        command = (u'echo "ok" > %s' % (status_txt)).encode('utf8') 
+        command = (u'echo "ok" > "%s"' % (status_txt)).encode('utf8') 
         os.system(command)
-            
+        print code ,'@212'
         return code,mp4
     else:
         return None,None
+
 def save_part(data_dict, video,file_path):
     part_list = Part.objects.filter(cid=data_dict['cid'])
 
@@ -254,13 +257,13 @@ def generate_view(request):
         v = video_list[0]
 
     for i in range(1,pages+1):
-        time.sleep(1)
+        time.sleep(5)
         data_dict = view_data(aid,i)
         cid = data_dict['cid']
         source_json = get_video_source(cid)
 #        print '@267',source_json
 
-        code,path = get_video(source_json,'%s-%s' % (aid,cid))
+        code,path = get_video(source_json,'%s' % (data_dict['title']))
 
         if code and path: 
             save_part(data_dict,v,path)
