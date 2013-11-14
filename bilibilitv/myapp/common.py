@@ -166,9 +166,9 @@ def view_data(id,page='1'):
     params['sign'] = get_sign(params,app_secret)['sign']
     query = get_sign(params,app_secret)['params']
 
-    url = 'http://api.bilibili.tv/view'
-
-    content = urllib.urlopen('%s?%s' % (url,query)).read()
+    url = 'http://api.bilibili.tv/view?%s' % (query)
+    print '@170,url=',url
+    content = urllib.urlopen(url).read()
     data = simplejson.loads(content)
     
     return data
