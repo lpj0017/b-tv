@@ -45,6 +45,7 @@ def store_video_url(url):
     query = VideoURL.objects.filter(url=url)
     if query.count() == 0:
         v = VideoURL(url=url)
+        v.is_saved = True
         v.save()
 
 def make_video_link(url):

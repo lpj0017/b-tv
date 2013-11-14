@@ -13,7 +13,7 @@ class Part(models.Model):
     cid = models.IntegerField()
     name = models.CharField(max_length=150)
     desc = models.TextField(blank=True)
-    mp4 = models.FileField(upload_to='video',blank=True,null=True) 
+    mp4 = models.FileField(upload_to='video/%Y-%m-%d',blank=True,null=True) 
     video= models.ForeignKey(Video)
 
     def __unicode__(self):
@@ -34,6 +34,7 @@ class Topic(models.Model):
 
 class VideoURL(models.Model):
     url=models.CharField(max_length=2048)
+    is_saved = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.url

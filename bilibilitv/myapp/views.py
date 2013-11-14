@@ -12,7 +12,7 @@ from api import my_http_response,api_bangumi_view,api_index_view,api_recommend_v
 import re
 from urlparse import urlparse
 from utils import get_aid,get_video_source,get_comment_source,generate_view
-from models import Topic,Part,Video
+from models import Topic,Part,Video,VideoURL
 from get_all_topic_worker import make_topic
 def save_topic(data_dict):
     topic_list = Topic.objects.filter(title=data_dict['title'])
@@ -307,3 +307,23 @@ def make_video_url_view(request):
         make_topic(i)
 
     return HttpResponse('work finished!')
+
+def download_source_and_upload_view(request):
+    number = request.GET.get('number','')
+
+    if number:
+        url_query = VideoURL.objects.filter(is_saved__iexact=False)[:number]
+    else:
+        url_query = VideoURL.objects.filter(is_saved__iexact=False)
+
+    for (count,url_object) in enumerate(url_query):
+        print '@315 number',count,"url=",url_object.url
+        url = url_object.url
+        data_dict = {}
+        data_dict['url'] = url
+        param = urllib.urlencode(data_dict)
+        content = requests.get('http://localhost:8000/myapp/generate/?%s' % param).content
+        if content!="finished":
+            return HttpResponse(content)
+
+    return HttpResponse('working finished')

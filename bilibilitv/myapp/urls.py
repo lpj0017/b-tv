@@ -20,5 +20,6 @@ urlpatterns = patterns('',
 
         (r'^generate/$',generate_view),
         (r'^make_video_url/$',make_video_url_view),
+        (r'^upload/$',download_source_and_upload_view),
 
 )
