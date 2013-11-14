@@ -226,12 +226,12 @@ def save_part(data_dict, video,file_path):
             part.name = data_dict['title']
         part.desc = data_dict['description']
         part.video = video
-        part.mp4.save('%s.mp4' % data_dict['title'], File(f))
+        part.mp4.save('%s.mp4' % part.name, File(f))
         part.save()
     else:
         part = part_list[0]
         if not part.mp4:
-            part.mp4.save('%s.mp4' % data_dict['title'], File(f))
+            part.mp4.save('%s.mp4' % part.name, File(f))
             part.save()
     f.close()
 
