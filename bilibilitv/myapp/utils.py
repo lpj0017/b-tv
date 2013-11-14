@@ -139,7 +139,7 @@ def download_file(url,sub_dir=''):
 def save_convert_flv_to_mp4(txt_file_path,mp4_file_path):
     temp_file = os.path.join(os.path.dirname(txt_file_path),'temp.flv')
     # merge flv files to one first
-    code = os.system((u'ffmpeg -f concat -i %s -c copy %s 2> /var/tmp/ffmpeg.log' % (txt_file_path,temp_file)).encode('utf8'))
+    code = os.system((u'ffmpeg -f concat -i "%s" -c copy "%s" 2> /var/tmp/ffmpeg.log' % (txt_file_path,temp_file)).encode('utf8'))
     # then convert flv to mp4 file 
     # this worked,but slow
     if code == 0:
@@ -226,13 +226,14 @@ def save_part(data_dict, video,file_path):
             part.name = data_dict['title']
         part.desc = data_dict['description']
         part.video = video
-        part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
+        part.mp4.save('%s.mp4' % data_dict['title'], File(f))
         part.save()
     else:
         part = part_list[0]
         if not part.mp4:
-            part.mp4.save('%s.mp4' % data_dict['cid'], File(f))
+            part.mp4.save('%s.mp4' % data_dict['title'], File(f))
             part.save()
+    f.close()
 
 def generate_view(request):
 
@@ -264,8 +265,8 @@ def generate_view(request):
 #        print '@267',source_json
 
         code,path = get_video(source_json,'%s' % (data_dict['title']))
-
-        if code and path: 
+        print '@267',code,path
+        if code == 0 and path: 
             save_part(data_dict,v,path)
 
     return HttpResponse('finished')
