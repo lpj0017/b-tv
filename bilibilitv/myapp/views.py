@@ -290,6 +290,10 @@ def video_view(request):
     aid = get_aid(url)
     
     data = view_data(aid,page)
+    
+    
+#    for k,v in data.items():
+#        print '@296,k,v = %s:%s' % (k,v)
 
     cid = data['cid']
 
