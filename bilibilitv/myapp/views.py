@@ -270,14 +270,9 @@ def comment_view(request):
     page = request.GET.get('page','1')
     aid = get_aid(url)
      
-#    data = view_data(aid) 
-
-#    pages = int(data['pages'])
     result = {}
-#    for i in range(1,pages+1):
     data_dict = view_data(aid,page)
     cid = data_dict['cid']
-#    data_dict['video_source'] = get_video_source(cid)
     data_dict['comment_source'] = get_comment_source(cid)
     result['%s' % page] = data_dict
 
@@ -290,14 +285,9 @@ def video_view(request):
     aid = get_aid(url)
     
     data = view_data(aid,page)
-    
-    
-#    for k,v in data.items():
-#        print '@296,k,v = %s:%s' % (k,v)
 
     cid = data['cid']
 
-#    part_list = Part.objects.filter(cid=cid)
     v  = get_object_or_404(Video,aid=aid)
 
     parts = v.part_set.filter(cid=cid)

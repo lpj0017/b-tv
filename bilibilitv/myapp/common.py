@@ -24,26 +24,10 @@ def ksort(d):
     return [(k,d[k]) for k in sorted(d.keys())]
 
 def reset(tmp):
-#    return tmp[0]
     pass
 
 def get_sign(params,key):
-#    data = {} 
-#    ksort(params)
-#    reset(params)
-#    keylist = params.keys()
-#    keylist.sort()
-    
-#    param_list= [] 
-#    for key in keylist:
-#        param_list.append('%s=%s' % (key ,urllib.quote(params[key].encode('utf8'))))
-#        sorted_dict[key] = params[key]
-
     sign = urllib.urlencode(params)
-#    sign = '&'.join(param_list) 
-#    print 43,data 
-#    print 44,sign
-
     return {'sign':md5(sign+key).lower(),'params':sign}
 
 def bangumi_data(btype=None,weekday=None):
@@ -170,7 +154,6 @@ def view_data(id,page='1'):
     print '@170,url=',url
     content = urllib.urlopen(url).read()
     data = simplejson.loads(content)
-    
+     
     return data
 
-#print 176,view_data(55300,1).keys()
