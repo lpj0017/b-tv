@@ -5,7 +5,7 @@ from django.http import HttpResponse
 
 def my_http_response(data):
     json_str = simplejson.dumps(data,ensure_ascii=False,indent=4,separators=(',\n',':'))    
-    return HttpResponse(json_str,content_type='application/json')
+    return HttpResponse(json_str,content_type='application/json;charset=utf-8')
 
 def api_bangumi_view(request):
     json_data = bangumi_data()
