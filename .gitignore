@@ -2,7 +2,6 @@ venv/*
 *.mp4
 *.flv
 *.hlv
-*.txt
 *.swp
 *.pyc
 *.swo
