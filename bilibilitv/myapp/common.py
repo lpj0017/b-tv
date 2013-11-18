@@ -27,6 +27,7 @@ def reset(tmp):
     pass
 
 def get_sign(params,key):
+    params = sorted(params.items())
     sign = urllib.urlencode(params)
     return {'sign':md5(sign+key).lower(),'params':sign}
 
