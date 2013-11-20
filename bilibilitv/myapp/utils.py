@@ -246,6 +246,12 @@ def generate_view(request):
     if not aid:
         sys.exit()
     data_dict = view_data(aid)
+    error = data_dict.get('error','')
+
+    if error:
+#        remove the data which have problem
+        print '@253', error
+        return HttpResponse('finished')
 
     cid,pages = data_dict['cid'],int(data_dict['pages'])
 
