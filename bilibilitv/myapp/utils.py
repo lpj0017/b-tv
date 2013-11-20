@@ -38,15 +38,18 @@ def get_video_source(cid):
     
     print '@32,video source url \n',url
 
-    res = requests.get(url)
-    content = res.content
-
-    parser = etree.XMLParser(strip_cdata=False)
-    doc = etree.XML(content, parser)
-    result = doc.xpath('//result')[0].text
+    video = {}
+    req = requests.get(url)
+    result = 'error'
+    if req.headers['content-type'].startswith('text/xml'):
+        content = req.content
+        parser = etree.XMLParser(strip_cdata=False)
+        doc = etree.XML(content, parser)
+        node = doc.xpath('//result')
+        if len(node) > 0 :
+            result = node[0].text
     
     if result != 'error':
-        video = {}
         video['result'] = result
         video['timelength'] = doc.xpath('//timelength')[0].text
 #        video['framecount'] = doc.xpath('//framecount')[0].text

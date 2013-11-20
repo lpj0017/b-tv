@@ -2,6 +2,7 @@
 import urllib
 import hashlib
 import simplejson
+import requests
 
 public_key = 'cead0936ae1be654a5ba0e7b1ee2b37b'
 app_key = 'b445a8268bac4eed'
@@ -153,7 +154,8 @@ def view_data(id,page='1'):
 
     url = 'http://api.bilibili.tv/view?%s' % (query)
     print '@170,url=',url
-    content = urllib.urlopen(url).read()
+#    content = urllib.urlopen(url).read()
+    content = requests.get(url).content
     data = simplejson.loads(content)
      
     return data
