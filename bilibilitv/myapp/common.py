@@ -153,8 +153,6 @@ def view_data(id,page='1'):
     query = get_sign(params,app_secret)['params']
 
     url = 'http://api.bilibili.tv/view?%s' % (query)
-    print '@170,url=',url
-#    content = urllib.urlopen(url).read()
     content = requests.get(url).content
     data = simplejson.loads(content)
      

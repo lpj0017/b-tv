@@ -35,9 +35,6 @@ def get_aid(url):
 
 def get_video_source(cid):
     url = 'http://interface.bilibili.tv/playurl?cid=%s' % (cid)
-    
-    print '@32,video source url \n',url
-
     video = {}
     req = requests.get(url)
     result = 'error'
@@ -271,10 +268,12 @@ def generate_view(request):
         data_dict = view_data(aid,i)
         cid = data_dict['cid']
         source_json = get_video_source(cid)
-#        print '@267',source_json
-
-        code,path = get_video(source_json,'%s' % (data_dict['title']))
-        print '@267',code,path
+        title = data_dict['partname']
+        if not title:
+            title = data_dict['title']
+        code,path = get_video(source_json,'%s' % (title))
+        
+#        print '@267',code,path
         if code == 0 and path: 
             save_part(data_dict,v,path)
 
