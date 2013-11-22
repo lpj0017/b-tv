@@ -1,0 +1,1 @@
+/usr/local/bin/wget http://localhost:8000/myapp/upload/?number=2 > /Users/caoguangyao/Desktop/result.html

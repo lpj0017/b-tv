@@ -9,3 +9,6 @@ venv/*
 /bilibilitv/bilibilitv/d-media/*
 *.html
 *.swn
+bilibilitv/-t
+
+*.html?number=2

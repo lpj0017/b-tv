@@ -288,8 +288,11 @@ def generate_view(request):
 
         source_json = get_video_source(cid)
 
-        code,path = get_video(source_json,video_title,partname)
-        print '@267',code,path
+        title = data_dict['partname']
+        if not title:
+            title = data_dict['title']
+        code,path = get_video(source_json,'%s' % (title))
+        
         if code == 0 and path: 
             save_part(data_dict,v,path)
 
