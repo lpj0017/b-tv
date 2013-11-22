@@ -36,7 +36,7 @@ def get_aid(url):
 def get_video_source(cid):
     url = 'http://interface.bilibili.tv/playurl?cid=%s' % (cid)
     
-    print '@32,video source url \n',url
+    print '@32,video source url ==',url
 
     video = {}
     req = requests.get(url)
@@ -172,10 +172,19 @@ def sort_list_by_order(li):
     new_list = sorted(li,key=lambda k:k['order'])
     return new_list
 
-def get_video(source_json,video_title=''):
-    list_txt = os.path.join(MEDIA_ROOT,'%s/list.txt' % (video_title))
+def get_video(source_json,video_title='',partname=''):
+    if partname == '':
+        partname=video_title
+    
+#    list_txt = os.path.join(MEDIA_ROOT,'%s/list.txt' % (video_title))
+    sub_dir = video_title
+    if partname != video_title:
+        sub_dir = '%s/%s' % (video_title,partname)
+
+    list_txt = os.path.join(MEDIA_ROOT,'%s/list.txt' % (sub_dir))
+
     status_txt = os.path.join(os.path.dirname(list_txt),'finished.txt')
-    mp4= os.path.join(MEDIA_ROOT,'%s/%s.mp4'%(video_title,video_title))
+    mp4= os.path.join(MEDIA_ROOT,'%s/%s.mp4'%(video_title,partname))
     
     if os.path.exists(status_txt):
         return 0, mp4
@@ -192,7 +201,8 @@ def get_video(source_json,video_title=''):
         f = open(list_txt,'wb')
         for d in url_list:
             source_url = d['url']
-            file_name = download_file(source_url,video_title)
+            
+            file_name = download_file(source_url,sub_dir)
             file_name = file_name.split('/')[-1]
             file_list.append(file_name)
             
@@ -240,7 +250,7 @@ def save_part(data_dict, video,file_path):
 
 def generate_view(request):
 
-    bilibili_url = request.GET.get('url','') #sys.argv[1]
+    bilibili_url = request.GET.get('url','') 
     aid = get_aid(bilibili_url)
     
     if not aid:
@@ -265,15 +275,20 @@ def generate_view(request):
         v.save()
     else:
         v = video_list[0]
+    
 
     for i in range(1,pages+1):
         time.sleep(5)
         data_dict = view_data(aid,i)
+        
         cid = data_dict['cid']
-        source_json = get_video_source(cid)
-#        print '@267',source_json
+        partname = data_dict['partname']
+        video_title = data_dict['title']
+        video_path = video_title
 
-        code,path = get_video(source_json,'%s' % (data_dict['title']))
+        source_json = get_video_source(cid)
+
+        code,path = get_video(source_json,video_title,partname)
         print '@267',code,path
         if code == 0 and path: 
             save_part(data_dict,v,path)
